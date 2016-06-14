@@ -65,12 +65,11 @@ Global replayopen.b
 Global modcol=0
 Global BlockINI.b=0
 Global BlockTaken.b=1
-Global MOTDevi=0
+Global MOTDmes$=""
 Global ExpertLog=0
 Global tracks=0
 Global msthread=0
 Global LoginReply$="CT#$HOST#Successfully connected as mod#%"
-Global motd$="Take that!"
 Global musicpage=0
 Global EviNumber=0
 Global ListMutex = CreateMutex()
@@ -256,8 +255,7 @@ Procedure LoadSettings(reload)
       WritePreferenceInteger("BlockTaken",1)
       WritePreferenceInteger("BlockINI",0)
       WritePreferenceInteger("ModColor",0)
-      WritePreferenceInteger("MOTDevi",0)
-      WritePreferenceString("MOTD","Take that!")
+      WritePreferenceString("MOTDmes","CT#$MOTD#Welcome to our server#%")
       WritePreferenceInteger("LoopMusic",0)
       WritePreferenceInteger("MultiChar",1)
       WritePreferenceInteger("WTCE",1)
@@ -275,7 +273,7 @@ Procedure LoadSettings(reload)
   BlockTaken=ReadPreferenceInteger("BlockTaken",1)
   modcol=ReadPreferenceInteger("ModColor",0)
   LoopMusic=ReadPreferenceInteger("LoopMusic",0)
-  MOTDevi=ReadPreferenceInteger("MOTDevi",0)
+  MOTDmes$=ReadPreferenceString("MOTDmes","CT#$MOTD#Welcome to our server#%")
   MultiChar=ReadPreferenceInteger("MultiChar",1)
   rt=ReadPreferenceInteger("WTCE",1)
   ExpertLog=ReadPreferenceInteger("ExpertLog",0)
@@ -283,7 +281,6 @@ Procedure LoadSettings(reload)
   LoginReply$=ReadPreferenceString("LoginReply","CT#$HOST#Successfully connected as mod#%")
   LogFile$=ReadPreferenceString("LogFile","base/serverlog.log")
   decryptor$=ReadPreferenceString("decryptor","34")
-  motd$=ReadPreferenceString("MOTD","Take that!")
   key=Val(DecryptStr(HexToString(decryptor$),322))
   If Logging
     CloseFile(1)
@@ -306,7 +303,7 @@ Procedure LoadSettings(reload)
     PrintN("OOC pass:"+oppass$)
     PrintN("Block INI edit:"+Str(BlockINI))
     PrintN("Moderator color:"+Str(modcol))
-    PrintN("MOTD evidence:"+Str(MOTDevi))
+    PrintN("MOTD message:"+Str(MOTDmes))
     PrintN("Login reply:"+LoginReply$)
     PrintN("Logfile:"+LogFile$)
     PrintN("Logging:"+Str(Logging))
@@ -359,12 +356,7 @@ Procedure LoadSettings(reload)
     Characters(loadcharsettings)\desc=Encode(ReadPreferenceString("text","No description"))
     Characters(loadcharsettings)\dj=ReadPreferenceInteger("dj",musicmode)
     Characters(loadcharsettings)\evinumber=ReadPreferenceInteger("evinumber",0)
-    If MOTDevi
-      Characters(loadcharsettings)\evidence=Encode(Str(MOTDevi)+","+ReadPreferenceString("evi",""))
-      Characters(loadcharsettings)\evinumber+1
-    Else
-      Characters(loadcharsettings)\evidence=Encode(ReadPreferenceString("evi",""))
-    EndIf
+    Characters(loadcharsettings)\evidence=Encode(ReadPreferenceString("evi",""))
     Characters(loadcharsettings)\pw=Encode(ReadPreferenceString("pass",""))
     ClosePreferences()
     ready$ = ready$ + Str(loadcharsettings)+"#"+Characters(loadcharsettings)\name+"&"+Characters(loadcharsettings)\desc+"&"+Str(Characters(loadcharsettings)\evinumber)+"&"+Characters(loadcharsettings)\evidence+"&"+Characters(loadcharsettings)\pw+"&0&#"
@@ -2036,9 +2028,7 @@ Procedure HandleAOCommand(ClientID)
             WriteLog("chose character: "+GetCharacterName(*usagePointer),*usagePointer)
             SendTarget(Str(ClientID),"HP#1#"+Str(Areas(*usagePointer\area)\good)+"#%",Server)
             SendTarget(Str(ClientID),"HP#2#"+Str(Areas(*usagePointer\area)\evil)+"#%",Server)
-            If (MOTDevi And Characters(char)\evinumber<2 ) Or motd$<>"Take that!"
-              SendTarget(Str(ClientID),"MS#chat#dolannormal#Dolan#dolannormal#"+motd$+"#jud#0#0#"+Str(characternumber-1)+"#0#0#"+Str(MOTDevi)+"#"+Str(characternumber-1)+"#0#"+Str(modcol)+"#%",Server)
-            EndIf
+            SendTarget(Str(ClientID),MOTDmes$,Server)
           EndIf 
           rf=1
         EndIf
@@ -2419,8 +2409,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 1557
-; FirstLine = 1541
+; CursorPosition = 2030
+; FirstLine = 2026
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0
