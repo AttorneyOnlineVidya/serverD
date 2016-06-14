@@ -80,6 +80,7 @@ Global ActionMutex = CreateMutex()
 Global musicmode=1
 Global update=0
 Global AreaNumber=1
+Global lastAdvertised=0
 Global decryptor$
 Global key
 Global newbuild
@@ -1114,6 +1115,7 @@ Procedure HandleAOCommand(ClientID)
   Define sname$
   Define mcid$,hdlist$
   Define song$,arep$,status$
+  Define curdate
   Dim CPlayers(characternumber)
   
   If ClientID>0
@@ -1545,6 +1547,14 @@ Procedure HandleAOCommand(ClientID)
 ;              Else
 ;                SendTarget(Str(ClientID),"CT#$HOST#You can't lock the default area#%",Server)
 ;              EndIf
+              
+            Case "/advertise"
+              curdate=Date()
+              If (curdate - lastAdvertised >= 60)
+                lastAdvertised=curdate
+                advtext$=Mid(ctparam$,12)
+                SendTarget("*","CT#[Advert]#"+GetCharacterName(*usagePointer)+" in "+GetAreaName(*usagePointer)+" needs "+advtext$+"#%",Server)
+              EndIf
               
             Case "/skip"
               If *usagePointer\perm
@@ -2406,8 +2416,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 1344
-; FirstLine = 1338
+; CursorPosition = 1552
+; FirstLine = 1532
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0

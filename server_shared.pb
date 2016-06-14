@@ -311,8 +311,8 @@ Procedure.s GetAreaName(*nclient.Client)
   EndIf
   ProcedureReturn name$
 EndProcedure
-; IDE Options = PureBasic 5.31 (Windows - x86)
-; CursorPosition = 288
-; FirstLine = 263
-; Folding = --
+; IDE Options = PureBasic 5.30 (Windows - x86)
+; CursorPosition = 304
+; FirstLine = 262
+; Folding = ----
 ; EnableXP
