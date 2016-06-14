@@ -1549,11 +1549,13 @@ Procedure HandleAOCommand(ClientID)
 ;              EndIf
               
             Case "/advertise"
-              curdate=Date()
-              If (curdate - lastAdvertised >= 60)
-                lastAdvertised=curdate
-                advtext$=Mid(ctparam$,12)
-                SendTarget("*","CT#[Advert]#"+GetCharacterName(*usagePointer)+" in "+GetAreaName(*usagePointer)+" needs "+advtext$+"#%",Server)
+              advtext$=Mid(ctparam$,12)
+              If advtext$<>""
+                curdate=Date()
+                If (curdate - lastAdvertised >= 60)
+                  lastAdvertised=curdate                
+                  SendTarget("*","CT#[Advert]#"+GetCharacterName(*usagePointer)+" in "+GetAreaName(*usagePointer)+" needs "+advtext$+"#%",Server)
+                EndIf
               EndIf
               
             Case "/skip"
@@ -2416,8 +2418,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 1552
-; FirstLine = 1532
+; CursorPosition = 1562
+; FirstLine = 1540
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0
