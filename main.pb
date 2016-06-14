@@ -1555,6 +1555,7 @@ Procedure HandleAOCommand(ClientID)
                 If (curdate - lastAdvertised >= 60)
                   lastAdvertised=curdate                
                   SendTarget("*","CT#[Advert]#"+GetCharacterName(*usagePointer)+" in "+GetAreaName(*usagePointer)+" needs "+advtext$+"#%",Server)
+                  WriteLog("["+GetCharacterName(*usagePointer)+"] used Advertise",*usagePointer)
                 EndIf
               EndIf
               
@@ -2418,8 +2419,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 1562
-; FirstLine = 1540
+; CursorPosition = 1557
+; FirstLine = 1541
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0
