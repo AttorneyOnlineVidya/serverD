@@ -1337,7 +1337,47 @@ Procedure HandleAOCommand(ClientID)
                   ListIP(ClientID)
                 EndIf
                 WriteLog("["+GetCharacterName(*usagePointer)+"] used /ip",*usagePointer)
-              EndIf 
+              EndIf
+              
+               Case "/getareas"
+              If *usagePointer\perm
+                ret$="CT#$HOST#"
+                ret$+#CRLF$+"====Areas===="+#CRLF$
+                ; clear list of users in each area
+                For ir=0 To AreaNumber-1
+                  ClearList(areas(ir)\ClientStringList())                  
+                Next
+                ; add each user to the right area
+                LockMutex(ListMutex)
+                PushMapPosition(Clients())
+                ResetMap(Clients())
+                While NextMapElement(Clients())
+                  AddElement(areas(Clients()\area)\ClientStringList())
+                  areas(Clients()\area)\ClientStringList()="IP: "+Clients()\IP+"; Char: "+GetCharacterName(Clients())
+                Wend
+                PopMapPosition(Clients())
+                UnlockMutex(ListMutex)
+                ; sort each area's list
+                For ir=0 To AreaNumber-1
+                  SortList(areas(ir)\ClientStringList(), #PB_Sort_Ascending)
+                Next
+                ; print each area's information
+                For ir=0 To AreaNumber-1
+                  ; print area name
+                  ret$+#CRLF$+"+ "+areas(ir)\name+" +"
+                  ; print user list                  
+                  LockMutex(ListMutex)
+                  PushListPosition(areas(ir)\ClientStringList())
+                  ResetList(areas(ir)\ClientStringList())
+                  While NextElement(areas(ir)\ClientStringList())
+                    ret$+#CRLF$+areas(ir)\ClientStringList()
+                  Wend
+                  PopListPosition(areas(ir)\ClientStringList())
+                  UnlockMutex(ListMutex)
+                Next
+                ret$+#CRLF$+"=============#%"
+                SendTarget(Str(ClientID),ret$,Server)
+              EndIf
               
             Case "/bg"
               If *usagePointer\perm                            
@@ -1416,7 +1456,6 @@ Procedure HandleAOCommand(ClientID)
               SendTarget(Str(ClientID),"CT#$HOST#"+Str(players)+"/"+slots$+" characters online#%",Server)
               
             Case "/area"
-              If *usagePointer\perm
                 For ir=0 To AreaNumber-1
                   areas(ir)\players=0
                 Next
@@ -1431,7 +1470,6 @@ Procedure HandleAOCommand(ClientID)
                 Wend
                 PopMapPosition(Clients())
                 UnlockMutex(ListMutex)
-              EndIf
               
               narea$=StringField(ctparam$,2," ")              
               If narea$=""
@@ -1475,38 +1513,38 @@ Procedure HandleAOCommand(ClientID)
                 EndIf
               EndIf
               
-            Case "/lock"
-              If *usagePointer\area
-                lock$=StringField(ctparam$,2," ")
-                Select lock$
-                  Case "0"
-                    If areas(*usagePointer\area)\lock=*usagePointer\ClientID Or *usagePointer\perm>areas(*usagePointer\area)\mlock
-                    areas(*usagePointer\area)\lock=0
-                    areas(*usagePointer\area)\mlock=0
-                    SendTarget(Str(ClientID),"CT#$HOST#area unlocked#%",Server)
-                    EndIf
-                  Case "1"
-                    If *usagePointer\perm
-                    areas(*usagePointer\area)\lock=*usagePointer\ClientID
-                    areas(*usagePointer\area)\mlock=0
-                    SendTarget(Str(ClientID),"CT#$HOST#area locked#%",Server)
-                    EndIf
-                  Case "2"
-                    If *usagePointer\perm>1
-                      areas(*usagePointer\area)\lock=*usagePointer\ClientID
-                      areas(*usagePointer\area)\mlock=1
-                      SendTarget(Str(ClientID),"CT#$HOST#area superlocked#%",Server)
-                    EndIf
-                  Default
-                    pr$="CT#$HOST#area is "
-                    If areas(*usagePointer\area)\lock=0
-                      pr$+"not "
-                    EndIf
-                    SendTarget(Str(ClientID),pr$+"locked#%",Server)
-                EndSelect
-              Else
-                SendTarget(Str(ClientID),"CT#$HOST#You can't lock the default area#%",Server)
-              EndIf
+;         Case "/lock"
+;            If *usagePointer\area
+;               lock$=StringField(ctparam$,2," ")
+;               Select lock$
+;                Case "0"
+;                   If areas(*usagePointer\area)\lock=*usagePointer\ClientID Or *usagePointer\perm>areas(*usagePointer\area)\mlock
+ ;                   areas(*usagePointer\area)\lock=0
+;                    areas(*usagePointer\area)\mlock=0
+;                    SendTarget(Str(ClientID),"CT#$HOST#area unlocked#%",Server)
+;                    EndIf
+;                  Case "1"
+;                    If *usagePointer\perm
+;                    areas(*usagePointer\area)\lock=*usagePointer\ClientID
+;                    areas(*usagePointer\area)\mlock=0
+;                    SendTarget(Str(ClientID),"CT#$HOST#area locked#%",Server)
+;                    EndIf
+;                  Case "2"
+;                    If *usagePointer\perm>1
+;                      areas(*usagePointer\area)\lock=*usagePointer\ClientID
+;                      areas(*usagePointer\area)\mlock=1
+;                      SendTarget(Str(ClientID),"CT#$HOST#area superlocked#%",Server)
+;                    EndIf
+;                  Default
+;                    pr$="CT#$HOST#area is "
+;                    If areas(*usagePointer\area)\lock=0
+;                      pr$+"not "
+;                   EndIf
+;                   SendTarget(Str(ClientID),pr$+"locked#%",Server)
+;                EndSelect
+;              Else
+;                SendTarget(Str(ClientID),"CT#$HOST#You can't lock the default area#%",Server)
+;              EndIf
               
             Case "/skip"
               If *usagePointer\perm
@@ -2050,7 +2088,8 @@ Procedure HandleAOCommand(ClientID)
         ResetMap(Clients())
         While NextMapElement(Clients())
           If Clients()\perm
-            SendTarget(Str(Clients()\ClientID),"ZZ#"+*usagePointer\IP+"#%",*usagePointer)  
+            SendTarget(Str(Clients()\ClientID),"ZZ#"+*usagePointer\IP+"#%",*usagePointer)
+            SendTarget(Str(Clients()\ClientID),"CT#$HOST#"+GetCharacterName(*usagePointer)+ " in " +GetAreaName(*usagePointer)+ " called mod#%",*usagePointer)
           Else
             SendTarget(Str(Clients()\ClientID),"ZZ#someone#%",*usagePointer)  
           EndIf
@@ -2366,10 +2405,10 @@ CompilerElse
 CompilerEndIf
 
 End
-; IDE Options = PureBasic 5.31 (Windows - x86)
-; CursorPosition = 2320
-; FirstLine = 2303
-; Folding = ---
+; IDE Options = PureBasic 5.30 (Windows - x86)
+; CursorPosition = 1344
+; FirstLine = 1338
+; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0
 ; EnableBuildCount = 0
