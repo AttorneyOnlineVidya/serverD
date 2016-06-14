@@ -2348,7 +2348,7 @@ EndProcedure
 
 ;-  PROGRAM START    
 
-If ReceiveHTTPFile("https://raw.githubusercontent.com/stonedDiscord/serverD/master/serverd.txt","serverd.txt")
+If ReceiveHTTPFile("https://raw.githubusercontent.com/AttorneyOnlineVidya/serverD/master/serverd.txt","serverd.txt")
   OpenPreferences("serverd.txt")
   PreferenceGroup("Version")
   newbuild=ReadPreferenceInteger("Build",#PB_Editor_BuildCount)
