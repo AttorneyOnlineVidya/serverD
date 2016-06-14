@@ -1144,7 +1144,7 @@ Procedure HandleAOCommand(ClientID)
       rawreceive$=*usagePointer\last
       coff=3
     EndIf    
-    
+      
     length=Len(rawreceive$)    
     
     If StringField(rawreceive$,3,"#")="chat"
@@ -1152,7 +1152,6 @@ Procedure HandleAOCommand(ClientID)
     ElseIf Right(StringField(rawreceive$,3,"#"),4)=".mp3"
       comm$="MC"
     EndIf
-    
     
     Debug rawreceive$
     Debug comm$
@@ -1305,6 +1304,11 @@ Procedure HandleAOCommand(ClientID)
         
         If *usagePointer\username=""
           *usagePointer\username=StringField(rawreceive$,3,"#")
+        EndIf
+        
+        ; reserved names
+        If (FindString(*usagePointer\username, "<dollar>HOST", 1, #PB_String_NoCase)<>0) Or (FindString(*usagePointer\username, "<dollar>ADVERT", 1, #PB_String_NoCase)<>0)
+          ProcedureReturn 0
         EndIf
         
         Debug ctparam$
@@ -1554,7 +1558,7 @@ Procedure HandleAOCommand(ClientID)
                 curdate=Date()
                 If (curdate - lastAdvertised >= 60)
                   lastAdvertised=curdate                
-                  SendTarget("*","CT#[Advert]#"+GetCharacterName(*usagePointer)+" in "+GetAreaName(*usagePointer)+" needs "+advtext$+"#%",Server)
+                  SendTarget("*","CT#$ADVERT#"+GetCharacterName(*usagePointer)+" in "+GetAreaName(*usagePointer)+" needs "+advtext$+"#%",Server)
                   WriteLog("["+GetCharacterName(*usagePointer)+"] used Advertise",*usagePointer)
                 EndIf
               EndIf
@@ -2419,8 +2423,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 1557
-; FirstLine = 1541
+; CursorPosition = 1308
+; FirstLine = 1284
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0
