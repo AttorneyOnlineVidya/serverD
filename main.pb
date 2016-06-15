@@ -80,6 +80,7 @@ Global musicmode=1
 Global update=0
 Global AreaNumber=1
 Global lastAdvertised=0
+Global advertiseCooldown=60
 Global decryptor$
 Global key
 Global newbuild
@@ -1341,7 +1342,7 @@ Procedure HandleAOCommand(ClientID)
               
                Case "/getareas"
                 ret$="CT#$HOST#"
-                ret$+#CRLF$+"====Areas===="+#CRLF$
+                ret$+#CRLF$+"====Areas===="
                 ; clear list of users in each area
                 For ir=0 To AreaNumber-1
                   ClearList(areas(ir)\ClientStringList())                  
@@ -1578,14 +1579,17 @@ Procedure HandleAOCommand(ClientID)
                SendTarget(Str(ClientID),"CT#$HOST#The current doc for this area is: "+GetAreaDoc(*usagePointer)+"#%",Server)
                
               
-            Case "/advert"
-              advtext$=Mid(ctparam$,12)
+            Case "/need"
+              advtext$=Mid(ctparam$,7)
               If advtext$<>""
                 curdate=Date()
-                If (curdate - lastAdvertised >= 60)
+                If (curdate - lastAdvertised >= advertiseCooldown)
                   lastAdvertised=curdate                
                   SendTarget("*","CT#$ADVERT#"+GetCharacterName(*usagePointer)+" in "+GetAreaName(*usagePointer)+" needs "+advtext$+"#%",Server)
-                  WriteLog("["+GetCharacterName(*usagePointer)+"] used Advertise",*usagePointer)
+                  WriteLog("["+GetCharacterName(*usagePointer)+"] used Need",*usagePointer)
+                Else
+                  SendTarget(Str(ClientID),"CT#$ADVERT#"+"That command is currently on cooldown. You have to wait "+Str(advertiseCooldown-(curdate-lastAdvertised))+" more seconds.#%",Server)
+                  WriteLog("["+GetCharacterName(*usagePointer)+"] tried to use Need",*usagePointer)
                 EndIf
               EndIf
               
@@ -2452,8 +2456,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 1440
-; FirstLine = 1405
+; CursorPosition = 1548
+; FirstLine = 1542
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0
