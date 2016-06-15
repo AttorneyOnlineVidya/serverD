@@ -902,6 +902,40 @@ Procedure SwitchAreas(*usagePointer.Client,narea$)
   EndIf
 EndProcedure
 
+Procedure CmdArea(*usagePointer.Client, ctparam$)
+  For ir=0 To AreaNumber-1
+    areas(ir)\players=0
+  Next
+  
+  LockMutex(ListMutex)
+  PushMapPosition(Clients())
+  ResetMap(Clients())
+  While NextMapElement(Clients())
+    If Clients()\area>=0
+      areas(Clients()\area)\players+1
+    EndIf
+  Wend
+  PopMapPosition(Clients())
+  UnlockMutex(ListMutex)
+  
+  narea$=StringField(ctparam$,2," ")              
+  If narea$=""
+    arep$="CT#$HOST#Areas:"
+    For ir=0 To AreaNumber-1
+      If areas(ir)\hidden=0 Or *usagePointer\perm
+        arep$+#CRLF$
+        arep$=arep$+areas(ir)\name+": "+Str(areas(ir)\players)+" users"
+        arep$+#CRLF$
+        arep$+areas(ir)\status+#CRLF$
+      EndIf
+    Next
+    arep$+"#%"
+    SendTarget(Str(*usagePointer\ClientID),arep$,Server)
+  Else                  
+    SwitchAreas(*usagePointer,narea$)
+  EndIf
+EndProcedure
+
 Procedure KickBan(kick$,param$,action,*usagePointer.Client)
   Define actionn$
   Define akck,newchar=-1
@@ -1501,37 +1535,7 @@ Procedure HandleAOCommand(ClientID)
               SendTarget(Str(ClientID),"CT#$HOST#"+Str(players)+"/"+slots$+" characters online#%",Server)
               
             Case "/area"
-              For ir=0 To AreaNumber-1
-                areas(ir)\players=0
-              Next
-              
-              LockMutex(ListMutex)
-              PushMapPosition(Clients())
-              ResetMap(Clients())
-              While NextMapElement(Clients())
-                If Clients()\area>=0
-                  areas(Clients()\area)\players+1
-                EndIf
-              Wend
-              PopMapPosition(Clients())
-              UnlockMutex(ListMutex)
-              
-              narea$=StringField(ctparam$,2," ")              
-              If narea$=""
-                arep$="CT#$HOST#Areas:"
-                For ir=0 To AreaNumber-1
-                  If areas(ir)\hidden=0 Or *usagePointer\perm
-                    arep$+#CRLF$
-                    arep$=arep$+areas(ir)\name+": "+Str(areas(ir)\players)+" users"
-                    arep$+#CRLF$
-                    arep$+areas(ir)\status+#CRLF$
-                  EndIf
-                Next
-                arep$+"#%"
-                SendTarget(Str(ClientID),arep$,Server)
-              Else                  
-                SwitchAreas(*usagePointer,narea$)
-              EndIf
+              CmdArea(*usagePointer, ctparam$)
               
             Case "/loadreplay"
               If *usagePointer\perm>1                  
@@ -2116,7 +2120,7 @@ Procedure HandleAOCommand(ClientID)
             WriteLog("chose character: "+GetCharacterName(*usagePointer),*usagePointer)
             SendTarget(Str(ClientID),"HP#1#"+Str(Areas(*usagePointer\area)\good)+"#%",Server)
             SendTarget(Str(ClientID),"HP#2#"+Str(Areas(*usagePointer\area)\evil)+"#%",Server)
-            SendTarget(Str(ClientID),MOTDmes$,Server)
+            SendTarget(Str(ClientID),MOTDmes$,Server)            
           EndIf 
           rf=1
         EndIf
@@ -2497,8 +2501,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 1463
-; FirstLine = 1436
+; CursorPosition = 1537
+; FirstLine = 1534
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0
