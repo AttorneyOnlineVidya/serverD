@@ -1546,14 +1546,14 @@ Procedure HandleAOCommand(ClientID)
                SendTarget(Str(ClientID),"CT#$HOST#The current doc for this area is: "+GetAreaDoc(*usagePointer)+"#%",Server)
                
               
-            Case "/advert"
-              advtext$=Mid(ctparam$,12)
+            Case "/need"
+              advtext$=Mid(ctparam$,7)
               If advtext$<>""
                 curdate=Date()
                 If (curdate - lastAdvertised >= 60)
                   lastAdvertised=curdate                
                   SendTarget("*","CT#$ADVERT#"+GetCharacterName(*usagePointer)+" in "+GetAreaName(*usagePointer)+" needs "+advtext$+"#%",Server)
-                  WriteLog("["+GetCharacterName(*usagePointer)+"] used Advertise",*usagePointer)
+                  WriteLog("["+GetCharacterName(*usagePointer)+"] used Need",*usagePointer)
                 EndIf
               EndIf
               
@@ -2420,8 +2420,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 1343
-; FirstLine = 1338
+; CursorPosition = 1555
+; FirstLine = 1518
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0
