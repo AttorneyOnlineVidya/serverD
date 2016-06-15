@@ -1375,6 +1375,43 @@ Procedure HandleAOCommand(ClientID)
                 Next
                 ret$+#CRLF$+"=============#%"
                 SendTarget(Str(ClientID),ret$,Server)
+              Else
+                ret$="CT#$HOST#"
+                ret$+#CRLF$+"====Areas===="+#CRLF$
+                ; clear list of users in each area
+                For ir=0 To AreaNumber-1
+                  ClearList(areas(ir)\ClientStringList())                  
+                Next
+                ; add each user to the right area
+                LockMutex(ListMutex)
+                PushMapPosition(Clients())
+                ResetMap(Clients())
+                While NextMapElement(Clients())
+                  AddElement(areas(Clients()\area)\ClientStringList())
+                  areas(Clients()\area)\ClientStringList()="Char: "+GetCharacterName(Clients())
+                Wend
+                PopMapPosition(Clients())
+                UnlockMutex(ListMutex)
+                ; sort each area's list
+                For ir=0 To AreaNumber-1
+                  SortList(areas(ir)\ClientStringList(), #PB_Sort_Ascending)
+                Next
+                ; print each area's information
+                For ir=0 To AreaNumber-1
+                  ; print area name
+                  ret$+#CRLF$+"+ "+areas(ir)\name+" +"
+                  ; print user list                  
+                  LockMutex(ListMutex)
+                  PushListPosition(areas(ir)\ClientStringList())
+                  ResetList(areas(ir)\ClientStringList())
+                  While NextElement(areas(ir)\ClientStringList())
+                    ret$+#CRLF$+areas(ir)\ClientStringList()
+                  Wend
+                  PopListPosition(areas(ir)\ClientStringList())
+                  UnlockMutex(ListMutex)
+                Next
+                ret$+#CRLF$+"=============#%"
+                SendTarget(Str(ClientID),ret$,Server)
               EndIf
               
             Case "/bg"
@@ -1404,6 +1441,7 @@ Procedure HandleAOCommand(ClientID)
                       If Clients()\CID=nch
                         If Clients()\area=*usagePointer\area
                           akchar=1
+                          SendTarget(Str(ClientID),"CT#$HOST#That character is already taken#%",Server)
                           Break
                         Else
                           akchar=0
@@ -1427,6 +1465,10 @@ Procedure HandleAOCommand(ClientID)
                   Break
                   rf=1
                 EndIf
+                If nch=CharacterNumber
+                  SendTarget(Str(ClientID),"CT#$HOST#That character is not on the character list#%",Server)
+                EndIf
+                
               Next
               
             Case "/switch"
@@ -1676,7 +1718,7 @@ Procedure HandleAOCommand(ClientID)
               SendTarget(Str(ClientID),"MS#chat#dolannormal#Dolan#dolannormal#"+StringField(ctparam$,2," ")+"#jud#1#0#"+Str(characternumber-1)+"#0#0#"+StringField(ctparam$,2," ")+"#"+Str(characternumber-1)+"#0#"+Str(modcol)+"#%",Server)                         
               
             Case "/roll"                        
-              If Len(ctparam$)<7
+              If ctparam$<>"/roll"
                 dicemax=Val(StringField(ctparam$,2," "))
               Else
                 dicemax=6
@@ -1684,13 +1726,18 @@ Procedure HandleAOCommand(ClientID)
               If dicemax<=1 Or dicemax>9999
                 dicemax=6
               EndIf
-              If OpenCryptRandom()
-                random$=Str(CryptRandom(dicemax))
-                CloseCryptRandom()
-              Else
-                random$=Str(Random(dicemax))
-              EndIf              
+              random$=Str(Random(dicemax,1))            
               Sendtarget("Area"+Str(*usagePointer\area),"CT#$HOST#"+GetCharacterName(*usagePointer)+" rolled "+random$+" out of "+Str(dicemax)+"#%",Server)
+              
+            Case "/coinflip"
+              toss=Random(2,1)
+              If toss=1
+                flip$="heads"
+              Else
+                flip$="tails"
+              EndIf
+              Sendtarget("Area"+Str(*usagePointer\area),"CT#$HOST#"+GetCharacterName(*usagePointer)+" flipped a coin and got "+flip$+"#%",Server)
+                
               
             Case "/pm"
               SendTarget(StringField(ctparam$,2," "),"CT#PM "+*usagePointer\username+" to You#"+Mid(ctparam$,6+Len(StringField(ctparam$,2," ")))+"#%",Server)
@@ -2413,8 +2460,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 1308
-; FirstLine = 1284
+; CursorPosition = 1470
+; FirstLine = 1465
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0
