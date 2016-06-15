@@ -79,9 +79,9 @@ Global ActionMutex = CreateMutex()
 Global musicmode=1
 Global update=0
 Global AreaNumber=1
-Global lastAdvertised=0
 Global judgeLogSize=10
 Global advertiseCooldown=60
+Global lastAdvertised=0
 Global decryptor$
 Global key
 Global newbuild
@@ -1589,8 +1589,8 @@ Procedure HandleAOCommand(ClientID)
               
             Case "/need"
               advtext$=Mid(ctparam$,7)
-              If advtext$<>""
-                curdate=Date()
+              curdate=Date()
+              If Len(advtext$)>0                
                 If (curdate - lastAdvertised >= advertiseCooldown)
                   lastAdvertised=curdate                
                   SendTarget("*","CT#$ADVERT#"+GetCharacterName(*usagePointer)+" in "+GetAreaName(*usagePointer)+" needs "+advtext$+"#%",Server)
@@ -1598,6 +1598,12 @@ Procedure HandleAOCommand(ClientID)
                 Else
                   SendTarget(Str(ClientID),"CT#$ADVERT#"+"That command is currently on cooldown. You have to wait "+Str(advertiseCooldown-(curdate-lastAdvertised))+" more seconds.#%",Server)
                   WriteLog("["+GetCharacterName(*usagePointer)+"] tried to use Need",*usagePointer)
+                EndIf
+              Else
+                If (curdate - lastAdvertised >= advertiseCooldown)
+                  SendTarget(Str(ClientID),"CT#$ADVERT#"+"That command is currently ready to use. Example: '/need detective, support defense'#%",Server)
+                Else
+                  SendTarget(Str(ClientID),"CT#$ADVERT#"+"That command is currently on cooldown. You have to wait "+Str(advertiseCooldown-(curdate-lastAdvertised))+" more seconds.#%",Server)
                 EndIf
               EndIf
               
@@ -2506,8 +2512,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 2258
-; FirstLine = 2226
+; CursorPosition = 1591
+; FirstLine = 1586
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0
