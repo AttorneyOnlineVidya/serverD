@@ -1436,8 +1436,40 @@ Procedure HandleAOCommand(ClientID)
                 If nch=CharacterNumber
                   SendTarget(Str(ClientID),"CT#$HOST#That character is not on the character list#%",Server)
                 EndIf
-                
               Next
+              
+            Case "/randomchar" ;changes the user into a random character
+              randomchar=Random(CharacterNumber,0)
+              If BlockTaken=1
+                LockMutex(ListMutex)
+                PushMapPosition(Clients())
+                ResetMap(Clients())
+                While NextMapElement(Clients())
+                  If Clients()\CID=randomchar
+                    If Clients()\area=*usagePointer\area
+                      randomchar=Random(CharacterNumber,0)
+                      Continue
+                    Else
+                      akchar=0
+                    EndIf
+                    If MultiChar=0
+                      akchar=1
+                      randomchar=Random(CharacterNumber,0)
+                      Continue
+                    EndIf
+                  EndIf
+                Wend
+                PopMapPosition(Clients())
+                UnlockMutex(ListMutex)     
+              EndIf
+              If akchar=0 Or *usagePointer\CID=randomchar Or BlockTaken=0
+                SendTarget(Str(ClientID),"PV#"+Str(*usagePointer\AID)+"#CID#"+Str(randomchar)+"#%",Server)               
+                *usagePointer\CID=randomchar       
+                WriteLog("chose character: "+GetCharacterName(*usagePointer),*usagePointer)
+                SendTarget(Str(ClientID),"HP#1#"+Str(Areas(*usagePointer\area)\good)+"#%",Server)
+                SendTarget(Str(ClientID),"HP#2#"+Str(Areas(*usagePointer\area)\evil)+"#%",Server)
+              EndIf
+              
               
             Case "/switch"
               If Mid(ctparam$,9)=""
@@ -2420,8 +2452,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 1548
-; FirstLine = 1542
+; CursorPosition = 1440
+; FirstLine = 1405
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0
