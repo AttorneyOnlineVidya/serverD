@@ -21,6 +21,7 @@ For iniarea=0 To 100
   areas(iniarea)\wait=0
   areas(iniarea)\lock=0
   areas(iniarea)\mlock=0
+  areas(iniarea)\status="[IDLE]"
 Next
 
 
@@ -300,6 +301,23 @@ Procedure.s GetCharacterName(*nclient.Client)
   ProcedureReturn name$
 EndProcedure
 
+Procedure.s GetAreaStatus(*nclient.Client)
+  Define areastatus$
+  If *nclient\area>=0 And *nclient\area<=AreaNumber
+    areastatus$=Areas(*nclient\area)\status
+  EndIf
+  ProcedureReturn areastatus$
+EndProcedure
+
+Procedure.s GetAreaDoc(*nclient.Client)
+  Define areadoc$
+  If *nclient\area>=0 And *nclient\area<=AreaNumber
+    areadoc$=Areas(*nclient\area)\docurl
+  EndIf
+  ProcedureReturn areadoc$
+  EndProcedure
+
+
 Procedure.s GetAreaName(*nclient.Client)
   Define name$
   If *nclient\area>=0 And *nclient\area<=AreaNumber
@@ -312,7 +330,7 @@ Procedure.s GetAreaName(*nclient.Client)
   ProcedureReturn name$
 EndProcedure
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 304
-; FirstLine = 262
+; CursorPosition = 312
+; FirstLine = 292
 ; Folding = ----
 ; EnableXP

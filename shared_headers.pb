@@ -39,6 +39,8 @@ Structure area
   track.s
   trackstart.l
   trackwait.i
+  status.s
+  docurl.s
   List ClientStringList.s()
 EndStructure
 
@@ -108,6 +110,6 @@ Enumeration
   #MOVE
 EndEnumeration
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 38
-; FirstLine = 19
+; CursorPosition = 42
+; FirstLine = 14
 ; EnableXP
