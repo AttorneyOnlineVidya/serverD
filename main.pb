@@ -80,6 +80,7 @@ Global musicmode=1
 Global update=0
 Global AreaNumber=1
 Global lastAdvertised=0
+Global judgeLogSize=10
 Global advertiseCooldown=60
 Global decryptor$
 Global key
@@ -88,6 +89,7 @@ Global *Buffer
 Global NewList HDmods.s()
 Global NewList gimps.s()
 Global NewList PReplay.s()
+Global NewList judgeLog.s()
 Global Dim Evidences.Evidence(100)
 Global Dim Icons.l(2)
 Global Dim ReadyChar.s(100)
@@ -1767,6 +1769,20 @@ Procedure HandleAOCommand(ClientID)
                 SendTarget("Area"+Str(*usagePointer\area),"MC#"+song$+"#"+Str(*usagePointer\CID)+"#%",*usagePointer)                
               EndIf
               
+            Case "/judgelog"
+              If *usagePointer\perm
+                ret$="CT#$HOST#"
+                ret$+#CRLF$+"====Judge Log===="
+                LockMutex(ListMutex)
+                ResetList(judgeLog())
+                While NextElement(judgeLog())
+                  ret$+#CRLF$+judgeLog()
+                Wend
+                UnlockMutex(ListMutex)
+                ret$+#CRLF$+"==============#%"
+                SendTarget(Str(ClientID),ret$,Server)
+              EndIf
+              
             Case "/hd"
               If *usagePointer\perm
                 kick$=Mid(ctparam$,5,Len(ctparam$)-2)
@@ -1913,6 +1929,18 @@ Procedure HandleAOCommand(ClientID)
         bar=Val(StringField(rawreceive$,4,"#"))
         If *usagePointer\CID>=0
           If bar>=0 And bar<=10
+            
+            ; add HP usage to judge log
+            LockMutex(ListMutex)
+            LastElement(judgeLog())
+            AddElement(judgeLog())
+            judgeLog()=GetCharacterName(*usagePointer)+" ("+*usagePointer\IP+") in "+GetAreaName(*usagePointer)+" changed HP"
+            If ListSize(judgeLog())>judgeLogSize
+              FirstElement(judgeLog())
+              DeleteElement(judgeLog())
+            EndIf
+            UnlockMutex(ListMutex)
+            
             WriteLog("["+GetCharacterName(*usagePointer)+"] changed the bars",*usagePointer)
             If StringField(rawreceive$,3,"#")="1"
               Areas(*usagePointer\area)\good=bar
@@ -1922,7 +1950,7 @@ Procedure HandleAOCommand(ClientID)
               SendTarget("Area"+Str(*usagePointer\area),"HP#2#"+Str(Areas(*usagePointer\area)\evil)+"#%",*usagePointer)
             EndIf
             send=1
-          Else
+          Else     
             WriteLog("["+GetCharacterName(*usagePointer)+"] fucked up the bars",*usagePointer)
             *usagePointer\hack=1
             rf=1
@@ -1938,6 +1966,17 @@ Procedure HandleAOCommand(ClientID)
           *usagePointer\hack=1
           rf=1
         EndIf
+        
+        ; add WT/CE usage to judge log
+        LockMutex(ListMutex)
+        LastElement(judgeLog())
+        AddElement(judgeLog())
+        judgeLog()=GetCharacterName(*usagePointer)+" ("+*usagePointer\IP+") in "+GetAreaName(*usagePointer)+" used WT/CE"
+        If ListSize(judgeLog())>judgeLogSize
+          FirstElement(judgeLog())
+          DeleteElement(judgeLog())
+        EndIf
+        UnlockMutex(ListMutex)
         
         WriteLog("["+GetCharacterName(*usagePointer)+"] WT/CE button",*usagePointer)
         
@@ -2456,8 +2495,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 1355
-; FirstLine = 1336
+; CursorPosition = 1937
+; FirstLine = 1924
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0
