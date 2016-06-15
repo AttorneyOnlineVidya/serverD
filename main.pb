@@ -1445,21 +1445,23 @@ Procedure HandleAOCommand(ClientID)
                 LockMutex(ListMutex)
                 PushMapPosition(Clients())
                 ResetMap(Clients())
-                While NextMapElement(Clients())
-                  If Clients()\CID=randomchar
-                    If Clients()\area=*usagePointer\area
-                      randomchar=Random(CharacterNumber,0)
-                      Continue
-                    Else
-                      akchar=0
+                For k = 1 To 10
+                  While NextMapElement(Clients())
+                    If Clients()\CID=randomchar
+                      If Clients()\area=*usagePointer\area
+                        randomchar=Random(CharacterNumber,0)
+                        ResetMap(Clients())
+                      Else
+                        akchar=0
+                      EndIf
+                      If MultiChar=0
+                        akchar=1
+                        randomchar=Random(CharacterNumber,0)
+                        ResetMap(Clients())
+                      EndIf
                     EndIf
-                    If MultiChar=0
-                      akchar=1
-                      randomchar=Random(CharacterNumber,0)
-                      Continue
-                    EndIf
-                  EndIf
-                Wend
+                  Wend
+                Next
                 PopMapPosition(Clients())
                 UnlockMutex(ListMutex)     
               EndIf
@@ -1550,19 +1552,19 @@ Procedure HandleAOCommand(ClientID)
          Case "/setstatus"  ;Sets the casing status of the current area
                setstatus$=StringField(ctparam$,2," ")
                Select setstatus$
-                  Case "0"
+                  Case "idle"
                     areas(*usagePointer\area)\status="[IDLE]"
                     SendTarget(Str(ClientID),"CT#$HOST#area is now set to Idle#%",Server)
-                  Case "1"
+                  Case "buildingopen"
                     areas(*usagePointer\area)\status="[BUILDING-OPEN]"
                     SendTarget(Str(ClientID),"CT#$HOST#area is now case building with open roles#%",Server)
-                  Case "2"
+                  Case "buildingfull"
                     areas(*usagePointer\area)\status="[BUILDING-FULL]"
                     SendTarget(Str(ClientID),"CT#$HOST#area is now case building with full roles#%",Server)
-                  Case "3"
+                  Case "casingopen"
                     areas(*usagePointer\area)\status="[CASING-OPEN]"
                     SendTarget(Str(ClientID),"CT#$HOST#area is now casing with open roles#%",Server)
-                  Case "4"
+                  Case "casingfull"
                     areas(*usagePointer\area)\status="[CASING-FULL]"
                     SendTarget(Str(ClientID),"CT#$HOST#area is now casing with full roles#%",Server)
                   Default
@@ -2456,8 +2458,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 1548
-; FirstLine = 1542
+; CursorPosition = 1463
+; FirstLine = 1436
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0
