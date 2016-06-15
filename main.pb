@@ -80,6 +80,7 @@ Global musicmode=1
 Global update=0
 Global AreaNumber=1
 Global lastAdvertised=0
+Global advertiseCooldown=60
 Global decryptor$
 Global key
 Global newbuild
@@ -1550,10 +1551,13 @@ Procedure HandleAOCommand(ClientID)
               advtext$=Mid(ctparam$,7)
               If advtext$<>""
                 curdate=Date()
-                If (curdate - lastAdvertised >= 60)
+                If (curdate - lastAdvertised >= advertiseCooldown)
                   lastAdvertised=curdate                
                   SendTarget("*","CT#$ADVERT#"+GetCharacterName(*usagePointer)+" in "+GetAreaName(*usagePointer)+" needs "+advtext$+"#%",Server)
                   WriteLog("["+GetCharacterName(*usagePointer)+"] used Need",*usagePointer)
+                Else
+                  SendTarget(Str(ClientID),"CT#$ADVERT#"+"That command is currently on cooldown. You have to wait "+Str(advertiseCooldown-(curdate-lastAdvertised))+" more seconds.#%",Server)
+                  WriteLog("["+GetCharacterName(*usagePointer)+"] tried to use Need",*usagePointer)
                 EndIf
               EndIf
               
@@ -2420,8 +2424,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 1555
-; FirstLine = 1518
+; CursorPosition = 1558
+; FirstLine = 1546
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0
