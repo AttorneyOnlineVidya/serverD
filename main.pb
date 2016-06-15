@@ -1582,10 +1582,11 @@ Procedure HandleAOCommand(ClientID)
               setdoc$=StringField(ctparam$,2," ")
               areas(*usagePointer\area)\docurl=setdoc$
               Sendtarget("Area"+Str(*usagePointer\area),"CT#$HOST#"+GetCharacterName(*usagePointer)+" changed the current case doc.#%",Server)
+              WriteLog(GetCharacterName(*usagePointer)+" in "+GetAreaName(*usagePointer)+" changed doc. URL: "+GetAreaDoc(*usagePointer)+"; "+"IP: "+*usagePointer\IP+"; HD: "+*usagePointer\HD,*usagePointer)
                
             Case "/getdoc"
               SendTarget(Str(ClientID),"CT#$HOST#The current doc for this area is: "+GetAreaDoc(*usagePointer)+"#%",Server)
-               
+              WriteLog(GetCharacterName(*usagePointer)+" in "+GetAreaName(*usagePointer)+" requested doc. URL: "+GetAreaDoc(*usagePointer)+"; "+"IP: "+*usagePointer\IP+"; HD: "+*usagePointer\HD,*usagePointer)
               
             Case "/need"
               advtext$=Mid(ctparam$,7)
@@ -2512,8 +2513,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 1591
-; FirstLine = 1586
+; CursorPosition = 1584
+; FirstLine = 1561
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0
