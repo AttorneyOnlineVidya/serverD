@@ -80,6 +80,7 @@ Global musicmode=1
 Global update=0
 Global AreaNumber=1
 Global lastAdvertised=0
+Global judgeLogSize=10
 Global advertiseCooldown=60
 Global decryptor$
 Global key
@@ -88,6 +89,7 @@ Global *Buffer
 Global NewList HDmods.s()
 Global NewList gimps.s()
 Global NewList PReplay.s()
+Global NewList judgeLog.s()
 Global Dim Evidences.Evidence(100)
 Global Dim Icons.l(2)
 Global Dim ReadyChar.s(100)
@@ -1340,47 +1342,47 @@ Procedure HandleAOCommand(ClientID)
                 WriteLog("["+GetCharacterName(*usagePointer)+"] used /ip",*usagePointer)
               EndIf
               
-               Case "/getareas"
-                ret$="CT#$HOST#"
-                ret$+#CRLF$+"====Areas===="
-                ; clear list of users in each area
-                For ir=0 To AreaNumber-1
-                  ClearList(areas(ir)\ClientStringList())                  
-                Next
-                ; add each user to the right area
+            Case "/getareas"
+              ret$="CT#$HOST#"
+              ret$+#CRLF$+"====Areas===="
+              ; clear list of users in each area
+              For ir=0 To AreaNumber-1
+                ClearList(areas(ir)\ClientStringList())                  
+              Next
+              ; add each user to the right area
+              LockMutex(ListMutex)
+              PushMapPosition(Clients())
+              ResetMap(Clients())
+              While NextMapElement(Clients())
+                AddElement(areas(Clients()\area)\ClientStringList())
+                If *usagePointer\perm
+                  areas(Clients()\area)\ClientStringList()="IP: "+Clients()\IP+"; Char: "+GetCharacterName(Clients())
+                Else
+                  areas(Clients()\area)\ClientStringList()="Char: "+GetCharacterName(Clients())
+                EndIf
+              Wend
+              PopMapPosition(Clients())
+              UnlockMutex(ListMutex)
+              ; sort each area's list
+              For ir=0 To AreaNumber-1
+                SortList(areas(ir)\ClientStringList(), #PB_Sort_Ascending)
+              Next
+              ; print each area's information
+              For ir=0 To AreaNumber-1
+                ; print area name
+                ret$+#CRLF$+"+ "+areas(ir)\name+" +"
+                ; print user list                  
                 LockMutex(ListMutex)
-                PushMapPosition(Clients())
-                ResetMap(Clients())
-                While NextMapElement(Clients())
-                  AddElement(areas(Clients()\area)\ClientStringList())
-                  If *usagePointer\perm
-                    areas(Clients()\area)\ClientStringList()="IP: "+Clients()\IP+"; Char: "+GetCharacterName(Clients())
-                  Else
-                    areas(Clients()\area)\ClientStringList()="Char: "+GetCharacterName(Clients())
-                  EndIf
+                PushListPosition(areas(ir)\ClientStringList())
+                ResetList(areas(ir)\ClientStringList())
+                While NextElement(areas(ir)\ClientStringList())
+                  ret$+#CRLF$+areas(ir)\ClientStringList()
                 Wend
-                PopMapPosition(Clients())
+                PopListPosition(areas(ir)\ClientStringList())
                 UnlockMutex(ListMutex)
-                ; sort each area's list
-                For ir=0 To AreaNumber-1
-                  SortList(areas(ir)\ClientStringList(), #PB_Sort_Ascending)
-                Next
-                ; print each area's information
-                For ir=0 To AreaNumber-1
-                  ; print area name
-                  ret$+#CRLF$+"+ "+areas(ir)\name+" +"
-                  ; print user list                  
-                  LockMutex(ListMutex)
-                  PushListPosition(areas(ir)\ClientStringList())
-                  ResetList(areas(ir)\ClientStringList())
-                  While NextElement(areas(ir)\ClientStringList())
-                    ret$+#CRLF$+areas(ir)\ClientStringList()
-                  Wend
-                  PopListPosition(areas(ir)\ClientStringList())
-                  UnlockMutex(ListMutex)
-                Next
-                ret$+#CRLF$+"=============#%"
-                SendTarget(Str(ClientID),ret$,Server)
+              Next
+              ret$+#CRLF$+"=============#%"
+              SendTarget(Str(ClientID),ret$,Server)
               
               
             Case "/bg"
@@ -1499,20 +1501,20 @@ Procedure HandleAOCommand(ClientID)
               SendTarget(Str(ClientID),"CT#$HOST#"+Str(players)+"/"+slots$+" characters online#%",Server)
               
             Case "/area"
-                For ir=0 To AreaNumber-1
-                  areas(ir)\players=0
-                Next
-                
-                LockMutex(ListMutex)
-                PushMapPosition(Clients())
-                ResetMap(Clients())
-                While NextMapElement(Clients())
-                  If Clients()\area>=0
-                    areas(Clients()\area)\players+1
-                  EndIf
-                Wend
-                PopMapPosition(Clients())
-                UnlockMutex(ListMutex)
+              For ir=0 To AreaNumber-1
+                areas(ir)\players=0
+              Next
+              
+              LockMutex(ListMutex)
+              PushMapPosition(Clients())
+              ResetMap(Clients())
+              While NextMapElement(Clients())
+                If Clients()\area>=0
+                  areas(Clients()\area)\players+1
+                EndIf
+              Wend
+              PopMapPosition(Clients())
+              UnlockMutex(ListMutex)
               
               narea$=StringField(ctparam$,2," ")              
               If narea$=""
@@ -1549,36 +1551,36 @@ Procedure HandleAOCommand(ClientID)
                 EndIf
               EndIf
               
-         Case "/setstatus"  ;Sets the casing status of the current area
-               setstatus$=StringField(ctparam$,2," ")
-               Select setstatus$
+            Case "/setstatus"  ;Sets the casing status of the current area
+              setstatus$=StringField(ctparam$,2," ")
+              Select setstatus$
                   Case "idle"
-                    areas(*usagePointer\area)\status="[IDLE]"
-                    SendTarget(Str(ClientID),"CT#$HOST#area is now set to Idle#%",Server)
+                  areas(*usagePointer\area)\status="[IDLE]"
+                  SendTarget(Str(ClientID),"CT#$HOST#area is now set to Idle#%",Server)
                   Case "buildingopen"
-                    areas(*usagePointer\area)\status="[BUILDING-OPEN]"
-                    SendTarget(Str(ClientID),"CT#$HOST#area is now case building with open roles#%",Server)
+                  areas(*usagePointer\area)\status="[BUILDING-OPEN]"
+                  SendTarget(Str(ClientID),"CT#$HOST#area is now case building with open roles#%",Server)
                   Case "buildingfull"
-                    areas(*usagePointer\area)\status="[BUILDING-FULL]"
-                    SendTarget(Str(ClientID),"CT#$HOST#area is now case building with full roles#%",Server)
+                  areas(*usagePointer\area)\status="[BUILDING-FULL]"
+                  SendTarget(Str(ClientID),"CT#$HOST#area is now case building with full roles#%",Server)
                   Case "casingopen"
-                    areas(*usagePointer\area)\status="[CASING-OPEN]"
-                    SendTarget(Str(ClientID),"CT#$HOST#area is now casing with open roles#%",Server)
+                  areas(*usagePointer\area)\status="[CASING-OPEN]"
+                  SendTarget(Str(ClientID),"CT#$HOST#area is now casing with open roles#%",Server)
                   Case "casingfull"
-                    areas(*usagePointer\area)\status="[CASING-FULL]"
-                    SendTarget(Str(ClientID),"CT#$HOST#area is now casing with full roles#%",Server)
-                  Default
-                    pr$="CT#$HOST#area is set to "+GetAreaStatus(*usagepointer)
-                   SendTarget(Str(ClientID),pr$+"#%",Server)
-               EndSelect
+                  areas(*usagePointer\area)\status="[CASING-FULL]"
+                  SendTarget(Str(ClientID),"CT#$HOST#area is now casing with full roles#%",Server)
+                Default
+                  pr$="CT#$HOST#area is set to "+GetAreaStatus(*usagepointer)
+                  SendTarget(Str(ClientID),pr$+"#%",Server)
+              EndSelect
                
-             Case "/setdoc"
-               setdoc$=StringField(ctparam$,2," ")
-               areas(*usagePointer\area)\docurl=setdoc$
-               Sendtarget("Area"+Str(*usagePointer\area),"CT#$HOST#"+GetCharacterName(*usagePointer)+" changed the current case doc.#%",Server)
+            Case "/setdoc"
+              setdoc$=StringField(ctparam$,2," ")
+              areas(*usagePointer\area)\docurl=setdoc$
+              Sendtarget("Area"+Str(*usagePointer\area),"CT#$HOST#"+GetCharacterName(*usagePointer)+" changed the current case doc.#%",Server)
                
-             Case "/getdoc"
-               SendTarget(Str(ClientID),"CT#$HOST#The current doc for this area is: "+GetAreaDoc(*usagePointer)+"#%",Server)
+            Case "/getdoc"
+              SendTarget(Str(ClientID),"CT#$HOST#The current doc for this area is: "+GetAreaDoc(*usagePointer)+"#%",Server)
                
               
             Case "/need"
@@ -1769,6 +1771,20 @@ Procedure HandleAOCommand(ClientID)
                 SendTarget("Area"+Str(*usagePointer\area),"MC#"+song$+"#"+Str(*usagePointer\CID)+"#%",*usagePointer)                
               EndIf
               
+            Case "/judgelog"
+              If *usagePointer\perm
+                ret$="CT#$HOST#"
+                ret$+#CRLF$+"====Judge Log===="
+                LockMutex(ListMutex)
+                ResetList(judgeLog())
+                While NextElement(judgeLog())
+                  ret$+#CRLF$+judgeLog()
+                Wend
+                UnlockMutex(ListMutex)
+                ret$+#CRLF$+"==============#%"
+                SendTarget(Str(ClientID),ret$,Server)
+              EndIf
+              
             Case "/hd"
               If *usagePointer\perm
                 kick$=Mid(ctparam$,5,Len(ctparam$)-2)
@@ -1915,6 +1931,18 @@ Procedure HandleAOCommand(ClientID)
         bar=Val(StringField(rawreceive$,4,"#"))
         If *usagePointer\CID>=0
           If bar>=0 And bar<=10
+            
+            ; add HP usage to judge log
+            LockMutex(ListMutex)
+            LastElement(judgeLog())
+            AddElement(judgeLog())
+            judgeLog()=GetCharacterName(*usagePointer)+" ("+*usagePointer\IP+") in "+GetAreaName(*usagePointer)+" changed HP"
+            If ListSize(judgeLog())>judgeLogSize
+              FirstElement(judgeLog())
+              DeleteElement(judgeLog())
+            EndIf
+            UnlockMutex(ListMutex)
+            
             WriteLog("["+GetCharacterName(*usagePointer)+"] changed the bars",*usagePointer)
             If StringField(rawreceive$,3,"#")="1"
               Areas(*usagePointer\area)\good=bar
@@ -1924,7 +1952,7 @@ Procedure HandleAOCommand(ClientID)
               SendTarget("Area"+Str(*usagePointer\area),"HP#2#"+Str(Areas(*usagePointer\area)\evil)+"#%",*usagePointer)
             EndIf
             send=1
-          Else
+          Else     
             WriteLog("["+GetCharacterName(*usagePointer)+"] fucked up the bars",*usagePointer)
             *usagePointer\hack=1
             rf=1
@@ -1940,6 +1968,17 @@ Procedure HandleAOCommand(ClientID)
           *usagePointer\hack=1
           rf=1
         EndIf
+        
+        ; add WT/CE usage to judge log
+        LockMutex(ListMutex)
+        LastElement(judgeLog())
+        AddElement(judgeLog())
+        judgeLog()=GetCharacterName(*usagePointer)+" ("+*usagePointer\IP+") in "+GetAreaName(*usagePointer)+" used WT/CE"
+        If ListSize(judgeLog())>judgeLogSize
+          FirstElement(judgeLog())
+          DeleteElement(judgeLog())
+        EndIf
+        UnlockMutex(ListMutex)
         
         WriteLog("["+GetCharacterName(*usagePointer)+"] WT/CE button",*usagePointer)
         
