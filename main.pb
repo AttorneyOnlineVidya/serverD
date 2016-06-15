@@ -2120,7 +2120,11 @@ Procedure HandleAOCommand(ClientID)
             WriteLog("chose character: "+GetCharacterName(*usagePointer),*usagePointer)
             SendTarget(Str(ClientID),"HP#1#"+Str(Areas(*usagePointer\area)\good)+"#%",Server)
             SendTarget(Str(ClientID),"HP#2#"+Str(Areas(*usagePointer\area)\evil)+"#%",Server)
-            SendTarget(Str(ClientID),MOTDmes$,Server)            
+            If Not *usagePointer\seenmotd
+              SendTarget(Str(ClientID),MOTDmes$,Server)
+              CmdArea(*usagePointer, "")
+              *usagePointer\seenmotd=1
+            EndIf
           EndIf 
           rf=1
         EndIf
@@ -2252,6 +2256,7 @@ Procedure Network(var)
         Clients()\gimp=0
         Clients()\ignoremc=0
         Clients()\websocket=0
+        Clients()\seenmotd=0
         Clients()\username=""
         
         LockMutex(ActionMutex)
@@ -2501,8 +2506,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 1537
-; FirstLine = 1534
+; CursorPosition = 2258
+; FirstLine = 2226
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0

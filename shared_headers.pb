@@ -83,6 +83,7 @@ Structure Client
   RAW.b
   master.b
   skip.b
+  seenmotd.b
   Inventory.i[20]
 EndStructure
 
@@ -110,6 +111,6 @@ Enumeration
   #MOVE
 EndEnumeration
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 42
-; FirstLine = 14
+; CursorPosition = 85
+; FirstLine = 42
 ; EnableXP
