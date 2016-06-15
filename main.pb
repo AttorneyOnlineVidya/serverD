@@ -1341,7 +1341,7 @@ Procedure HandleAOCommand(ClientID)
               
                Case "/getareas"
                 ret$="CT#$HOST#"
-                ret$+#CRLF$+"====Areas===="+#CRLF$
+                ret$+#CRLF$+"====Areas===="
                 ; clear list of users in each area
                 For ir=0 To AreaNumber-1
                   ClearList(areas(ir)\ClientStringList())                  
@@ -2420,8 +2420,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 1548
-; FirstLine = 1542
+; CursorPosition = 1343
+; FirstLine = 1338
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0
