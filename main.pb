@@ -1558,29 +1558,42 @@ Procedure HandleAOCommand(ClientID)
               
             Case "/setstatus"  ;Sets the casing status of the current area
               setstatus$=StringField(ctparam$,2," ")
+              logstatus$=GetCharacterName(*usagePointer)+" in "+GetAreaName(*usagePointer)+" changed area status"
               Select setstatus$
                 Case "idle"
                   areas(*usagePointer\area)\status="[IDLE]"
-                  SendTarget(Str(ClientID),"CT#$HOST#area is now set to Idle#%",Server)
+                  areas(*usagePointer\area)\nameset=GetCharacterName(*usagePointer)
+                  SendTarget("Area"+Str(*usagePointer\area),"CT#$HOST#area is now set to Idle#%",Server)
+                  WriteLog(logstatus$,*usagePointer)
                 Case "buildingopen"
                   areas(*usagePointer\area)\status="[BUILDING-OPEN]"
-                  SendTarget(Str(ClientID),"CT#$HOST#area is now case building with open roles#%",Server)
+                  areas(*usagePointer\area)\nameset=GetCharacterName(*usagePointer)
+                  SendTarget("Area"+Str(*usagePointer\area),"CT#$HOST#area is now case building with open roles#%",Server)
+                  WriteLog(logstatus$,*usagePointer)
                 Case "buildingfull"
                   areas(*usagePointer\area)\status="[BUILDING-FULL]"
-                  SendTarget(Str(ClientID),"CT#$HOST#area is now case building with full roles#%",Server)
+                  areas(*usagePointer\area)\nameset=GetCharacterName(*usagePointer)
+                  SendTarget("Area"+Str(*usagePointer\area),"CT#$HOST#area is now case building with full roles#%",Server)
+                  WriteLog(logstatus$,*usagePointer)
                 Case "casingopen"
                   areas(*usagePointer\area)\status="[CASING-OPEN]"
-                  SendTarget(Str(ClientID),"CT#$HOST#area is now casing with open roles#%",Server)
+                  areas(*usagePointer\area)\nameset=GetCharacterName(*usagePointer)
+                  SendTarget("Area"+Str(*usagePointer\area),"CT#$HOST#area is now casing with open roles#%",Server)
+                  WriteLog(logstatus$,*usagePointer)
                 Case "casingfull"
                   areas(*usagePointer\area)\status="[CASING-FULL]"
-                  SendTarget(Str(ClientID),"CT#$HOST#area is now casing with full roles#%",Server)
-                Case "current"
-                  pr$="CT#$HOST#area is set to "+GetAreaStatus(*usagepointer)
-                  SendTarget(Str(ClientID),pr$+"#%",Server)
+                  areas(*usagePointer\area)\nameset=GetCharacterName(*usagePointer)
+                  SendTarget("Area"+Str(*usagePointer\area),"CT#$HOST#area is now casing with full roles#%",Server)
+                  WriteLog(logstatus$,*usagePointer)
                 Default
                   pr$="CT#$HOST#Couldn't recognize status. Try: idle, buildingopen, buildilngfull, casingopen, casingfull"
                   SendTarget(Str(ClientID),pr$+"#%",Server)
               EndSelect
+              
+            Case "/status" ;Prints the current area status to chat
+              cs$="CT#$HOST#area is set to "+GetAreaStatus(*usagepointer)+" and was set by "+GetNameStatus(*usagePointer)
+              SendTarget(Str(ClientID),cs$+"#%",Server)
+              
                
             Case "/setdoc"
               setdoc$=StringField(ctparam$,2," ")
@@ -2551,8 +2564,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 1634
-; FirstLine = 1610
+; CursorPosition = 1574
+; FirstLine = 1556
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0

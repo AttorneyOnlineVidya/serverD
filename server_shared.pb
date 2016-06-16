@@ -22,6 +22,7 @@ For iniarea=0 To 100
   areas(iniarea)\lock=0
   areas(iniarea)\mlock=0
   areas(iniarea)\status="[IDLE]"
+  areas(iniarea)\nameset="default"
 Next
 
 
@@ -309,6 +310,14 @@ Procedure.s GetAreaStatus(*nclient.Client)
   ProcedureReturn areastatus$
 EndProcedure
 
+Procedure.s GetNameStatus(*nclient.Client) ;Returns the character name of the last person to set the area status
+  Define lastset$
+  If *nclient\area>=0 And *nclient\area<=AreaNumber
+    lastset$=Areas(*nclient\area)\nameset
+  EndIf
+  ProcedureReturn lastset$
+EndProcedure
+
 Procedure.s GetAreaDoc(*nclient.Client)
   Define areadoc$
   If *nclient\area>=0 And *nclient\area<=AreaNumber
@@ -330,7 +339,7 @@ Procedure.s GetAreaName(*nclient.Client)
   ProcedureReturn name$
 EndProcedure
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 312
-; FirstLine = 292
+; CursorPosition = 28
+; FirstLine = 8
 ; Folding = ----
 ; EnableXP
