@@ -1559,23 +1559,26 @@ Procedure HandleAOCommand(ClientID)
             Case "/setstatus"  ;Sets the casing status of the current area
               setstatus$=StringField(ctparam$,2," ")
               Select setstatus$
-                  Case "idle"
+                Case "idle"
                   areas(*usagePointer\area)\status="[IDLE]"
                   SendTarget(Str(ClientID),"CT#$HOST#area is now set to Idle#%",Server)
-                  Case "buildingopen"
+                Case "buildingopen"
                   areas(*usagePointer\area)\status="[BUILDING-OPEN]"
                   SendTarget(Str(ClientID),"CT#$HOST#area is now case building with open roles#%",Server)
-                  Case "buildingfull"
+                Case "buildingfull"
                   areas(*usagePointer\area)\status="[BUILDING-FULL]"
                   SendTarget(Str(ClientID),"CT#$HOST#area is now case building with full roles#%",Server)
-                  Case "casingopen"
+                Case "casingopen"
                   areas(*usagePointer\area)\status="[CASING-OPEN]"
                   SendTarget(Str(ClientID),"CT#$HOST#area is now casing with open roles#%",Server)
-                  Case "casingfull"
+                Case "casingfull"
                   areas(*usagePointer\area)\status="[CASING-FULL]"
                   SendTarget(Str(ClientID),"CT#$HOST#area is now casing with full roles#%",Server)
-                Default
+                Case "current"
                   pr$="CT#$HOST#area is set to "+GetAreaStatus(*usagepointer)
+                  SendTarget(Str(ClientID),pr$+"#%",Server)
+                Default
+                  pr$="CT#$HOST#Couldn't recognize status. Try: idle, buildingopen, buildilngfull, casingopen, casingfull"
                   SendTarget(Str(ClientID),pr$+"#%",Server)
               EndSelect
                
@@ -2526,8 +2529,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 2141
-; FirstLine = 2130
+; CursorPosition = 1578
+; FirstLine = 1552
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0
