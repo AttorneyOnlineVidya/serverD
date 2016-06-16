@@ -1711,7 +1711,7 @@ Procedure HandleAOCommand(ClientID)
               WriteLog("smoke weed everyday",*usagePointer)
               
             Case "/help"
-              SendTarget(Str(ClientID),"CT#$HOST#Check https://github.com/stonedDiscord/serverD/blob/master/README.md#%",Server)
+              SendTarget(Str(ClientID),"CT#$HOST#Check https://goo.gl/7BYLwY for a list of server commands.#%",Server)
               
             Case "/public"
               Debug ctparam$
