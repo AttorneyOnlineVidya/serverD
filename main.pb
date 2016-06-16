@@ -1592,10 +1592,13 @@ Procedure HandleAOCommand(ClientID)
               WriteLog(GetCharacterName(*usagePointer)+" in "+GetAreaName(*usagePointer)+" cleared doc. Old URL: "+GetAreaDoc(*usagePointer)+"; "+"IP: "+*usagePointer\IP+"; HD: "+*usagePointer\HD,*usagePointer)
               areas(*usagePointer\area)\docurl="N/A"
               SendTarget("Area"+Str(*usagePointer\area),"CT#$HOST#"+GetCharacterName(*usagePointer)+" cleared the current case doc.#%",Server)              
-               
+              
             Case "/doc"
               SendTarget(Str(ClientID),"CT#$HOST#The current case doc for this area is: "+#CRLF$+GetAreaDoc(*usagePointer)+"#%",Server)
               WriteLog(GetCharacterName(*usagePointer)+" in "+GetAreaName(*usagePointer)+" requested doc. URL: "+GetAreaDoc(*usagePointer)+"; "+"IP: "+*usagePointer\IP+"; HD: "+*usagePointer\HD,*usagePointer)
+              
+            Case "/motd" ;Prints the MOTD to chat
+              SendTarget(Str(ClientID),MOTDmes$,Server)
               
             Case "/need"
               advtext$=Mid(ctparam$,7)
@@ -2137,8 +2140,8 @@ Procedure HandleAOCommand(ClientID)
             SendTarget(Str(ClientID),"HP#1#"+Str(Areas(*usagePointer\area)\good)+"#%",Server)
             SendTarget(Str(ClientID),"HP#2#"+Str(Areas(*usagePointer\area)\evil)+"#%",Server)
             If Not *usagePointer\seenmotd
-              SendTarget(Str(ClientID),MOTDmes$,Server)
               CmdArea(*usagePointer, "")
+              SendTarget(Str(ClientID),MOTDmes$,Server)
               *usagePointer\seenmotd=1
             EndIf
           EndIf 
@@ -2522,8 +2525,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 1596
-; FirstLine = 1562
+; CursorPosition = 2141
+; FirstLine = 2130
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0
