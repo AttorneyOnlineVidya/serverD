@@ -1338,7 +1338,7 @@ Procedure HandleAOCommand(ClientID)
         EndIf
         
         ; reserved names
-        If (FindString(*usagePointer\username, "<dollar>HOST", 1, #PB_String_NoCase)<>0) Or (FindString(*usagePointer\username, "<dollar>ADVERT", 1, #PB_String_NoCase)<>0)
+        If (FindString(*usagePointer\username, "<dollar>HOST", 1, #PB_String_NoCase)<>0) Or (FindString(*usagePointer\username, "<dollar>ADVERT", 1, #PB_String_NoCase)<>0) Or (FindString(*usagePointer\username, "<dollar>GLOBAL", 1, #PB_String_NoCase)<>0)
           ProcedureReturn 0
         EndIf
         
@@ -1607,7 +1607,7 @@ Procedure HandleAOCommand(ClientID)
               If Len(advtext$)>0                
                 If (curdate - lastAdvertised >= advertiseCooldown)
                   lastAdvertised=curdate                
-                  SendTarget("*","CT#$ADVERT#"+GetCharacterName(*usagePointer)+" in "+GetAreaName(*usagePointer)+" needs "+advtext$+"#%",Server)
+                  SendTarget("*","CT#$ADVERT#"+#CRLF$+"==============="+#CRLF$+GetCharacterName(*usagePointer)+" in "+GetAreaName(*usagePointer)+" needs "+advtext$+#CRLF$+"===============#%",Server)
                   WriteLog("["+GetCharacterName(*usagePointer)+"] used Need",*usagePointer)
                 Else
                   SendTarget(Str(ClientID),"CT#$ADVERT#"+"That command is currently on cooldown. You have to wait "+Str(advertiseCooldown-(curdate-lastAdvertised))+" more seconds.#%",Server)
@@ -1620,6 +1620,27 @@ Procedure HandleAOCommand(ClientID)
                   SendTarget(Str(ClientID),"CT#$ADVERT#"+"That command is currently on cooldown. You have to wait "+Str(advertiseCooldown-(curdate-lastAdvertised))+" more seconds.#%",Server)
                 EndIf
               EndIf
+              
+            Case "/g"
+              globtext$=Mid(ctparam$,4)
+              If Len(globtext$)>0
+                LockMutex(ListMutex)
+                PushMapPosition(Clients())
+                ResetMap(Clients())
+                While NextMapElement(Clients())
+                  If Clients()\globalchat
+                    SendTarget(Str(Clients()\ClientID), "CT#$GLOBAL["+*usagePointer\area+"]["+GetCharacterName(*usagePointer)+"]#"+globtext$+"#%",Server)
+                  EndIf
+                Wend
+                PopMapPosition(Clients())
+                UnlockMutex(ListMutex)
+              EndIf
+              
+            Case "/globalon"
+              *usagePointer\globalchat=1
+              
+            Case "/globaloff"
+              *usagePointer\globalchat=0
               
             Case "/skip"
               If *usagePointer\perm
@@ -2277,6 +2298,7 @@ Procedure Network(var)
         Clients()\ignoremc=0
         Clients()\websocket=0
         Clients()\seenmotd=0
+        Clients()\globalchat=1
         Clients()\username=""
         
         LockMutex(ActionMutex)
@@ -2526,8 +2548,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 2141
-; FirstLine = 2130
+; CursorPosition = 1634
+; FirstLine = 1610
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0
