@@ -1489,6 +1489,7 @@ Procedure HandleAOCommand(ClientID)
                         ResetMap(Clients())
                       Else
                         akchar=0
+                        Break 2
                       EndIf
                       If MultiChar=0
                         akchar=1
