@@ -1475,41 +1475,41 @@ Procedure HandleAOCommand(ClientID)
                 EndIf
               Next
               
-            Case "/randomchar" ;changes the user into a random character
-              randomchar=Random(CharacterNumber,0)
-              If BlockTaken=1
-                LockMutex(ListMutex)
-                PushMapPosition(Clients())
-                ResetMap(Clients())
-                For k = 1 To 10
-                  While NextMapElement(Clients())
-                    If Clients()\CID=randomchar
-                      If Clients()\area=*usagePointer\area
-                        akchar=1
-                        randomchar=Random(CharacterNumber,0)
-                        ResetMap(Clients())
-                      Else
-                        akchar=0
-                        Break 2
-                      EndIf
-                      If MultiChar=0
-                        akchar=1
-                        randomchar=Random(CharacterNumber,0)
-                        ResetMap(Clients())
-                      EndIf
-                    EndIf
-                  Wend
-                Next
-                PopMapPosition(Clients())
-                UnlockMutex(ListMutex)     
-              EndIf
-              If akchar=0 Or *usagePointer\CID=randomchar Or BlockTaken=0
-                SendTarget(Str(ClientID),"PV#"+Str(*usagePointer\AID)+"#CID#"+Str(randomchar)+"#%",Server)               
-                *usagePointer\CID=randomchar       
-                WriteLog("chose character: "+GetCharacterName(*usagePointer),*usagePointer)
-                SendTarget(Str(ClientID),"HP#1#"+Str(Areas(*usagePointer\area)\good)+"#%",Server)
-                SendTarget(Str(ClientID),"HP#2#"+Str(Areas(*usagePointer\area)\evil)+"#%",Server)
-              EndIf
+;            Case "/randomchar" ;changes the user into a random character
+;              randomchar=Random(CharacterNumber,0)
+;              If BlockTaken=1
+;                LockMutex(ListMutex)
+;                PushMapPosition(Clients())
+;                ResetMap(Clients())
+;                For k = 1 To 10
+;                  While NextMapElement(Clients())
+;                    If Clients()\CID=randomchar
+;                      If Clients()\area=*usagePointer\area
+;                        akchar=1
+;                        randomchar=Random(CharacterNumber,0)
+;                        ResetMap(Clients())
+;                      Else
+;                        akchar=0
+;                        Break 2
+;                      EndIf
+;                      If MultiChar=0
+;                        akchar=1
+;                       randomchar=Random(CharacterNumber,0)
+;                      ResetMap(Clients())
+;                   EndIf
+;                    EndIf
+;                  Wend
+;                Next
+;                PopMapPosition(Clients())
+;                UnlockMutex(ListMutex)     
+;              EndIf
+;              If akchar=0 Or *usagePointer\CID=randomchar Or BlockTaken=0
+;                SendTarget(Str(ClientID),"PV#"+Str(*usagePointer\AID)+"#CID#"+Str(randomchar)+"#%",Server)               
+;                *usagePointer\CID=randomchar       
+;                WriteLog("chose character: "+GetCharacterName(*usagePointer),*usagePointer)
+;                SendTarget(Str(ClientID),"HP#1#"+Str(Areas(*usagePointer\area)\good)+"#%",Server)
+;                SendTarget(Str(ClientID),"HP#2#"+Str(Areas(*usagePointer\area)\evil)+"#%",Server)
+;              EndIf
               
               
             Case "/switch"
@@ -2580,8 +2580,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 1661
-; FirstLine = 1628
+; CursorPosition = 1511
+; FirstLine = 1481
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0
