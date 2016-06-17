@@ -1485,6 +1485,7 @@ Procedure HandleAOCommand(ClientID)
                   While NextMapElement(Clients())
                     If Clients()\CID=randomchar
                       If Clients()\area=*usagePointer\area
+                        akchar=1
                         randomchar=Random(CharacterNumber,0)
                         ResetMap(Clients())
                       Else
@@ -2564,8 +2565,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 1778
-; FirstLine = 1759
+; CursorPosition = 1491
+; FirstLine = 1468
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0
