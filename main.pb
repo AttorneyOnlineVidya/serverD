@@ -1653,6 +1653,21 @@ Procedure HandleAOCommand(ClientID)
                 UnlockMutex(ListMutex)
               EndIf
               
+            Case "/gm"
+              If *usagePointer\perm
+                globtext$=Mid(ctparam$,5)
+                If Len(globtext$)>0
+                  LockMutex(ListMutex)
+                  PushMapPosition(Clients())
+                  ResetMap(Clients())
+                  While NextMapElement(Clients())
+                    SendTarget(Str(Clients()\ClientID), "CT#$GLOBAL[M]["+*usagePointer\area+"]["+GetCharacterName(*usagePointer)+"]#"+globtext$+"#%",Server)
+                  Wend
+                  PopMapPosition(Clients())
+                  UnlockMutex(ListMutex)
+                EndIf
+              EndIf
+              
             Case "/globalon"
               *usagePointer\globalchat=1
               
@@ -2565,8 +2580,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 1491
-; FirstLine = 1468
+; CursorPosition = 1661
+; FirstLine = 1628
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0
