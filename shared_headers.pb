@@ -86,6 +86,7 @@ Structure Client
   skip.b
   seenmotd.b
   globalchat.b
+  adverts.b
   Inventory.i[20]
 EndStructure
 
@@ -113,6 +114,6 @@ Enumeration
   #MOVE
 EndEnumeration
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 42
+; CursorPosition = 88
 ; FirstLine = 60
 ; EnableXP

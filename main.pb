@@ -1620,8 +1620,17 @@ Procedure HandleAOCommand(ClientID)
               curdate=Date()
               If Len(advtext$)>0                
                 If (curdate - lastAdvertised >= advertiseCooldown)
-                  lastAdvertised=curdate                
-                  SendTarget("*","CT#$ADVERT#"+#CRLF$+"==============="+#CRLF$+GetCharacterName(*usagePointer)+" in "+GetAreaName(*usagePointer)+" needs "+advtext$+#CRLF$+"===============#%",Server)
+                  lastAdvertised=curdate
+                  LockMutex(ListMutex)
+                  PushMapPosition(Clients())
+                  ResetMap(Clients())
+                  While NextMapElement(Clients())
+                    If Clients()\adverts
+                      SendTarget(Str(Clients()\ClientID),"CT#$ADVERT#"+#CRLF$+"=======ADVERT======="+#CRLF$+GetCharacterName(*usagePointer)+" in "+GetAreaName(*usagePointer)+" needs "+advtext$+#CRLF$+"===================#%",Server)
+                    EndIf
+                  Wend
+                  PopMapPosition(Clients())
+                  UnlockMutex(ListMutex)
                   WriteLog("["+GetCharacterName(*usagePointer)+"] used Need",*usagePointer)
                 Else
                   SendTarget(Str(ClientID),"CT#$ADVERT#"+"That command is currently on cooldown. You have to wait "+Str(advertiseCooldown-(curdate-lastAdvertised))+" more seconds.#%",Server)
@@ -1635,6 +1644,16 @@ Procedure HandleAOCommand(ClientID)
                 EndIf
               EndIf
               
+            ; global mod only announcement
+            Case "/announce"
+              If *usagePointer\perm
+                anntext$=Mid(ctparam$,11)
+                If Len(anntext$)>0
+                  SendTarget("*","CT#$HOST#"+#CRLF$+"====ANNOUNCEMENT===="+#CRLF$+"------------------------------------"+#CRLF$+anntext$+#CRLF$+"------------------------------------"+#CRLF$+"==================#%",Server)
+                EndIf
+              EndIf
+              
+            ; regular message  
             Case "/g"
               globtext$=Mid(ctparam$,4)
               If Len(globtext$)>0
@@ -1650,6 +1669,7 @@ Procedure HandleAOCommand(ClientID)
                 UnlockMutex(ListMutex)
               EndIf
               
+            ; mod message in global  
             Case "/gm"
               If *usagePointer\perm
                 globtext$=Mid(ctparam$,5)
@@ -1658,7 +1678,9 @@ Procedure HandleAOCommand(ClientID)
                   PushMapPosition(Clients())
                   ResetMap(Clients())
                   While NextMapElement(Clients())
-                    SendTarget(Str(Clients()\ClientID), "CT#$GLOBAL[M]["+*usagePointer\area+"]["+GetCharacterName(*usagePointer)+"]#"+globtext$+"#%",Server)
+                    If Clients()\globalchat
+                      SendTarget(Str(Clients()\ClientID), "CT#$GLOBAL[M]["+*usagePointer\area+"]["+GetCharacterName(*usagePointer)+"]#"+globtext$+"#%",Server)
+                    EndIf
                   Wend
                   PopMapPosition(Clients())
                   UnlockMutex(ListMutex)
@@ -1667,9 +1689,19 @@ Procedure HandleAOCommand(ClientID)
               
             Case "/globalon"
               *usagePointer\globalchat=1
+              SendTarget(Str(ClientID), "CT#$HOST#Global chat has been turned on.#%",Server)
               
             Case "/globaloff"
               *usagePointer\globalchat=0
+              SendTarget(Str(ClientID), "CT#$HOST#Global chat has been turned off.#%",Server)
+              
+            Case "/adverton"
+              *usagePointer\adverts=1
+              SendTarget(Str(ClientID), "CT#$HOST#Advertisements have been turned on.#%",Server)
+              
+            Case "/advertoff"
+              *usagePointer\adverts=0
+              SendTarget(Str(ClientID), "CT#$HOST#Advertisements have been turned off.#%",Server)
               
             ; mod message in OOC  
             Case "/lm"
@@ -2337,6 +2369,7 @@ Procedure Network(var)
         Clients()\websocket=0
         Clients()\seenmotd=0
         Clients()\globalchat=1
+        Clients()\adverts=1
         Clients()\username=""
         
         LockMutex(ActionMutex)
@@ -2586,8 +2619,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 1489
-; FirstLine = 1477
+; CursorPosition = 1651
+; FirstLine = 1608
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0
