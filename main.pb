@@ -1583,8 +1583,13 @@ Procedure HandleAOCommand(ClientID)
                   areas(*usagePointer\area)\nameset=GetCharacterName(*usagePointer)
                   SendTarget("Area"+Str(*usagePointer\area),"CT#$HOST#"+GetCharacterName(*usagePointer)+" changed area status to Casing (Full Roles)#%",Server)
                   WriteLog(logstatus$,*usagePointer)
+                Case "recess"
+                  areas(*usagePointer\area)\status="[RECESS]"
+                  areas(*usagePointer\area)\nameset=GetCharacterName(*usagePointer)
+                  SendTarget("Area"+Str(*usagePointer\area),"CT#$HOST#"+GetCharacterName(*usagePointer)+" changed area status to Recess#%",Server)
+                  WriteLog(logstatus$,*usagePointer)
                 Default
-                  pr$="CT#$HOST#Couldn't recognize status. Try: idle, buildingopen, buildingfull, casingopen, casingfull"
+                  pr$="CT#$HOST#Couldn't recognize status. Try: idle, buildingopen, buildingfull, casingopen, casingfull, recess"
                   SendTarget(Str(ClientID),pr$+"#%",Server)
               EndSelect
               
@@ -2619,8 +2624,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 1651
-; FirstLine = 1608
+; CursorPosition = 1585
+; FirstLine = 1553
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0
