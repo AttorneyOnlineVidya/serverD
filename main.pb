@@ -925,6 +925,9 @@ Procedure CmdArea(*usagePointer.Client, ctparam$)
       If areas(ir)\hidden=0 Or *usagePointer\perm
         arep$+#CRLF$
         arep$=arep$+areas(ir)\name+": "+Str(areas(ir)\players)+" users"
+        If ir=*usagePointer\area
+          arep$+" (*)"
+        EndIf
         arep$+#CRLF$
         arep$+areas(ir)\status+#CRLF$
       EndIf
@@ -1475,41 +1478,35 @@ Procedure HandleAOCommand(ClientID)
                 EndIf
               Next
               
-;            Case "/randomchar" ;changes the user into a random character
-;              randomchar=Random(CharacterNumber,0)
-;              If BlockTaken=1
-;                LockMutex(ListMutex)
-;                PushMapPosition(Clients())
-;                ResetMap(Clients())
-;                For k = 1 To 10
-;                  While NextMapElement(Clients())
-;                    If Clients()\CID=randomchar
-;                      If Clients()\area=*usagePointer\area
-;                        akchar=1
-;                        randomchar=Random(CharacterNumber,0)
-;                        ResetMap(Clients())
-;                      Else
-;                        akchar=0
-;                        Break 2
-;                      EndIf
-;                      If MultiChar=0
-;                        akchar=1
-;                       randomchar=Random(CharacterNumber,0)
-;                      ResetMap(Clients())
-;                   EndIf
-;                    EndIf
-;                  Wend
-;                Next
-;                PopMapPosition(Clients())
-;                UnlockMutex(ListMutex)     
-;              EndIf
-;              If akchar=0 Or *usagePointer\CID=randomchar Or BlockTaken=0
-;                SendTarget(Str(ClientID),"PV#"+Str(*usagePointer\AID)+"#CID#"+Str(randomchar)+"#%",Server)               
-;                *usagePointer\CID=randomchar       
-;                WriteLog("chose character: "+GetCharacterName(*usagePointer),*usagePointer)
-;                SendTarget(Str(ClientID),"HP#1#"+Str(Areas(*usagePointer\area)\good)+"#%",Server)
-;                SendTarget(Str(ClientID),"HP#2#"+Str(Areas(*usagePointer\area)\evil)+"#%",Server)
-;              EndIf
+            Case "/randomchar" ;changes the user into a random character
+              randomchar=Random(CharacterNumber-1,0)
+              If BlockTaken=1
+                LockMutex(ListMutex)
+                PushMapPosition(Clients())
+                ResetMap(Clients())
+                For k = 1 To 10
+                  akchar=0
+                  While NextMapElement(Clients())
+                    If Clients()\area=*usagePointer\area
+                      If Clients()\CID=randomchar
+                        akchar=1
+                        randomchar=Random(CharacterNumber-1,0)
+                        ResetMap(Clients())
+                        Break
+                      EndIf
+                    EndIf
+                  Wend
+                Next
+                PopMapPosition(Clients())
+                UnlockMutex(ListMutex)     
+              EndIf
+              If akchar=0 Or *usagePointer\CID=randomchar Or BlockTaken=0
+                SendTarget(Str(ClientID),"PV#"+Str(*usagePointer\AID)+"#CID#"+Str(randomchar)+"#%",Server)               
+                *usagePointer\CID=randomchar       
+                WriteLog("chose character: "+GetCharacterName(*usagePointer),*usagePointer)
+                SendTarget(Str(ClientID),"HP#1#"+Str(Areas(*usagePointer\area)\good)+"#%",Server)
+                SendTarget(Str(ClientID),"HP#2#"+Str(Areas(*usagePointer\area)\evil)+"#%",Server)
+              EndIf
               
               
             Case "/switch"
@@ -2580,8 +2577,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 1511
-; FirstLine = 1481
+; CursorPosition = 1489
+; FirstLine = 1477
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0
