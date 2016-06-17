@@ -1775,8 +1775,8 @@ Procedure HandleAOCommand(ClientID)
                 EndIf
               EndIf
               
-            Case "/evi"                      
-              SendTarget(Str(ClientID),"MS#chat#dolannormal#Dolan#dolannormal#"+StringField(ctparam$,2," ")+"#jud#1#0#"+Str(characternumber-1)+"#0#0#"+StringField(ctparam$,2," ")+"#"+Str(characternumber-1)+"#0#"+Str(modcol)+"#%",Server)                         
+            ;Case "/evi"                      
+            ;  SendTarget(Str(ClientID),"MS#chat#dolannormal#Dolan#dolannormal#"+StringField(ctparam$,2," ")+"#jud#1#0#"+Str(characternumber-1)+"#0#0#"+StringField(ctparam$,2," ")+"#"+Str(characternumber-1)+"#0#"+Str(modcol)+"#%",Server)                         
               
             Case "/roll"                        
               If ctparam$<>"/roll"
@@ -2564,8 +2564,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 1574
-; FirstLine = 1556
+; CursorPosition = 1778
+; FirstLine = 1759
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0
