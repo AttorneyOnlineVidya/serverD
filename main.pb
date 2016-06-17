@@ -1341,7 +1341,7 @@ Procedure HandleAOCommand(ClientID)
         EndIf
         
         ; reserved names
-        If (FindString(*usagePointer\username, "<dollar>HOST", 1, #PB_String_NoCase)<>0) Or (FindString(*usagePointer\username, "<dollar>ADVERT", 1, #PB_String_NoCase)<>0) Or (FindString(*usagePointer\username, "<dollar>GLOBAL", 1, #PB_String_NoCase)<>0)
+        If (FindString(*usagePointer\username, "<dollar>HOST", 1, #PB_String_NoCase)<>0) Or (FindString(*usagePointer\username, "<dollar>ADVERT", 1, #PB_String_NoCase)<>0) Or (FindString(*usagePointer\username, "<dollar>GLOBAL", 1, #PB_String_NoCase)<>0) Or (FindString(*usagePointer\username, "<dollar>MOD", 1, #PB_String_NoCase)<>0)
           ProcedureReturn 0
         EndIf
         
@@ -1561,30 +1561,30 @@ Procedure HandleAOCommand(ClientID)
                 Case "idle"
                   areas(*usagePointer\area)\status="[IDLE]"
                   areas(*usagePointer\area)\nameset=GetCharacterName(*usagePointer)
-                  SendTarget("Area"+Str(*usagePointer\area),"CT#$HOST#area is now set to Idle#%",Server)
+                  SendTarget("Area"+Str(*usagePointer\area),"CT#$HOST#"+GetCharacterName(*usagePointer)+" changed area status to Idle#%",Server)
                   WriteLog(logstatus$,*usagePointer)
                 Case "buildingopen"
                   areas(*usagePointer\area)\status="[BUILDING-OPEN]"
                   areas(*usagePointer\area)\nameset=GetCharacterName(*usagePointer)
-                  SendTarget("Area"+Str(*usagePointer\area),"CT#$HOST#area is now case building with open roles#%",Server)
+                  SendTarget("Area"+Str(*usagePointer\area),"CT#$HOST#"+GetCharacterName(*usagePointer)+" changed area status to Building (Open Roles)#%",Server)
                   WriteLog(logstatus$,*usagePointer)
                 Case "buildingfull"
                   areas(*usagePointer\area)\status="[BUILDING-FULL]"
                   areas(*usagePointer\area)\nameset=GetCharacterName(*usagePointer)
-                  SendTarget("Area"+Str(*usagePointer\area),"CT#$HOST#area is now case building with full roles#%",Server)
+                  SendTarget("Area"+Str(*usagePointer\area),"CT#$HOST#"+GetCharacterName(*usagePointer)+" changed area status to Building (Full Roles)#%",Server)
                   WriteLog(logstatus$,*usagePointer)
                 Case "casingopen"
                   areas(*usagePointer\area)\status="[CASING-OPEN]"
                   areas(*usagePointer\area)\nameset=GetCharacterName(*usagePointer)
-                  SendTarget("Area"+Str(*usagePointer\area),"CT#$HOST#area is now casing with open roles#%",Server)
+                  SendTarget("Area"+Str(*usagePointer\area),"CT#$HOST#"+GetCharacterName(*usagePointer)+" changed area status to Casing (Open Roles)#%",Server)
                   WriteLog(logstatus$,*usagePointer)
                 Case "casingfull"
                   areas(*usagePointer\area)\status="[CASING-FULL]"
                   areas(*usagePointer\area)\nameset=GetCharacterName(*usagePointer)
-                  SendTarget("Area"+Str(*usagePointer\area),"CT#$HOST#area is now casing with full roles#%",Server)
+                  SendTarget("Area"+Str(*usagePointer\area),"CT#$HOST#"+GetCharacterName(*usagePointer)+" changed area status to Casing (Full Roles)#%",Server)
                   WriteLog(logstatus$,*usagePointer)
                 Default
-                  pr$="CT#$HOST#Couldn't recognize status. Try: idle, buildingopen, buildilngfull, casingopen, casingfull"
+                  pr$="CT#$HOST#Couldn't recognize status. Try: idle, buildingopen, buildingfull, casingopen, casingfull"
                   SendTarget(Str(ClientID),pr$+"#%",Server)
               EndSelect
               
@@ -1597,7 +1597,7 @@ Procedure HandleAOCommand(ClientID)
               setdoc$=StringField(ctparam$,2," ")
               If Len(setdoc$)>0
                 areas(*usagePointer\area)\docurl=setdoc$
-                SendTarget("Area"+Str(*usagePointer\area),"CT#$HOST#"+GetCharacterName(*usagePointer)+" changed the current case doc.#%",Server)
+                SendTarget("Area"+Str(*usagePointer\area),"CT#$HOST#"+GetCharacterName(*usagePointer)+" changed the current case doc. Use /doc to view it.#%",Server)
                 WriteLog(GetCharacterName(*usagePointer)+" in "+GetAreaName(*usagePointer)+" changed doc. URL: "+GetAreaDoc(*usagePointer)+"; "+"IP: "+*usagePointer\IP+"; HD: "+*usagePointer\HD,*usagePointer)
               Else
                 SendTarget(Str(ClientID),"CT#$HOST#You cannot set an empty doc.#%",Server)
@@ -1670,6 +1670,15 @@ Procedure HandleAOCommand(ClientID)
               
             Case "/globaloff"
               *usagePointer\globalchat=0
+              
+            ; mod message in OOC  
+            Case "/lm"
+              If *usagePointer\perm
+                loctext$=Mid(ctparam$,5)
+                If Len(loctext$)>0
+                  SendTarget("Area"+Str(*usagePointer\area),"CT#$MOD["+GetCharacterName(*usagePointer)+"]#"+loctext$+"#%",Server)
+                EndIf
+              EndIf
               
             Case "/skip"
               If *usagePointer\perm
