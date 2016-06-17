@@ -1338,7 +1338,7 @@ Procedure HandleAOCommand(ClientID)
         EndIf
         
         ; reserved names
-        If (FindString(*usagePointer\username, "<dollar>HOST", 1, #PB_String_NoCase)<>0) Or (FindString(*usagePointer\username, "<dollar>ADVERT", 1, #PB_String_NoCase)<>0) Or (FindString(*usagePointer\username, "<dollar>GLOBAL", 1, #PB_String_NoCase)<>0)
+        If (FindString(*usagePointer\username, "<dollar>HOST", 1, #PB_String_NoCase)<>0) Or (FindString(*usagePointer\username, "<dollar>ADVERT", 1, #PB_String_NoCase)<>0) Or (FindString(*usagePointer\username, "<dollar>GLOBAL", 1, #PB_String_NoCase)<>0) Or (FindString(*usagePointer\username, "<dollar>MOD", 1, #PB_String_NoCase)<>0)
           ProcedureReturn 0
         EndIf
         
@@ -1673,6 +1673,15 @@ Procedure HandleAOCommand(ClientID)
               
             Case "/globaloff"
               *usagePointer\globalchat=0
+              
+            ; mod message in OOC  
+            Case "/lm"
+              If *usagePointer\perm
+                loctext$=Mid(ctparam$,5)
+                If Len(loctext$)>0
+                  SendTarget("Area"+Str(*usagePointer\area),"CT#$MOD["+GetCharacterName(*usagePointer)+"]#"+loctext$+"#%",Server)
+                EndIf
+              EndIf
               
             Case "/skip"
               If *usagePointer\perm
@@ -2580,8 +2589,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 1511
-; FirstLine = 1481
+; CursorPosition = 1340
+; FirstLine = 1321
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0
