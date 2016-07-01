@@ -42,6 +42,7 @@ Structure area
   status.s
   nameset.s
   docurl.s
+  bglock.l
   List ClientStringList.s()
 EndStructure
 
@@ -114,6 +115,6 @@ Enumeration
   #MOVE
 EndEnumeration
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 88
-; FirstLine = 60
+; CursorPosition = 44
+; FirstLine = 12
 ; EnableXP

@@ -90,6 +90,7 @@ Global NewList HDmods.s()
 Global NewList gimps.s()
 Global NewList PReplay.s()
 Global NewList judgeLog.s()
+Global NewList userbackground.s()
 Global Dim Evidences.Evidence(100)
 Global Dim Icons.l(2)
 Global Dim ReadyChar.s(100)
@@ -194,7 +195,7 @@ EndProcedure
 Procedure LoadSettings(reload)
   Define loadchars,loadcharsettings,loaddesc, loadevi, loadareas
   Define iniarea,charpage,page,dur,ltracks,nplg
-  Define track$,trackn$,hdmod$,hdban$,ipban$,ready$,area$,lgimp$,aname$
+  Define track$,trackn$,hdmod$,hdban$,ipban$,ready$,area$,lgimp$,luserbg$,aname$
   WriteLog("Loading serverD "+version$+" settings",Server)
   If update
     WriteLog("UPDATE AVAILABLE",Server)
@@ -449,6 +450,23 @@ Procedure LoadSettings(reload)
   Else
     If CreateFile(2, "base/gimp.txt")
       WriteStringN(2, "<3")
+      CloseFile(2)
+    EndIf
+  EndIf
+  
+  If ReadFile(2, "base/userbg.txt")
+    ClearList(userbackground())
+    While Eof(2) = 0
+      luserbg$=ReadString(2)
+      If luserbg$<>""
+        AddElement(userbackground())
+        userbackground()=luserbg$
+      EndIf
+    Wend
+    CloseFile(2)
+  Else
+    If CreateFile(2, "base/userbg.txt")
+      WriteStringN(2, "default")
       CloseFile(2)
     EndIf
   EndIf
@@ -1423,12 +1441,44 @@ Procedure HandleAOCommand(ClientID)
               
               
             Case "/bg"
+              bgcomm$=Mid(ctparam$,5)
               If *usagePointer\perm                            
-                bgcomm$=Mid(ctparam$,5)
                 areas(*usagePointer\area)\bg=bgcomm$
-                Sendtarget("Area"+Str(*usagePointer\area),"BN#"+bgcomm$+"#%",*usagePointer)                      
+                Sendtarget("Area"+Str(*usagePointer\area),"BN#"+bgcomm$+"#%",*usagePointer)
+                Sendtarget("Area"+Str(*usagePointer\area),"CT#$HOST#A moderator changed the background#%",*usagePointer)
+                WriteLog("changed background to "+bgcomm$+" in "+GetAreaName(*usagePointer),*usagePointer)
+              ElseIf areas(*usagePointer\area)\bglock=0
+                ForEach userbackground()
+                  If bgcomm$=userbackground()
+                    bgfound=1
+                    areas(*usagePointer\area)\bg=bgcomm$
+                    Sendtarget("Area"+Str(*usagePointer\area),"BN#"+bgcomm$+"#%",*usagePointer)
+                    Sendtarget("Area"+Str(*usagePointer\area),"CT#$HOST#"+GetCharacterName(*usagePointer)+" changed the background#%",*usagePointer)
+                    WriteLog("changed background to "+bgcomm$+" in "+GetAreaName(*usagePointer),*usagePointer)
+                  EndIf
+                Next
+                If bgfound=0
+                  SendTarget(Str(ClientID),"CT#$HOST#That background cannot be found or is unavailable#%",Server) 
+                EndIf
+              Else
+                SendTarget(Str(ClientID),"CT#$HOST#You cannot change the background in this area, a moderator has locked it#%",Server) 
               EndIf
               
+            Case "/bglock"
+              If *usagePointer\perm
+                lock$=StringField(ctparam$,2," ")
+                If lock$ = "0"
+                  areas(*usagePointer\area)\bglock=0
+                  SendTarget(Str(ClientID),"CT#$HOST#Backgrounds in this area can now be changed#%",Server)
+                ElseIf lock$ = "1"
+                  areas(*usagePointer\area)\bglock=1
+                  SendTarget(Str(ClientID),"CT#$HOST#Backgrounds are now locked in this area#%",Server)
+                EndIf
+              EndIf
+              
+                  
+                  
+                
             Case "/pos"
               npos$=Mid(ctparam$,6)
               If npos$="def" Or npos$="pro" Or npos$="hlp" Or npos$="hld" Or npos$="wit" Or npos$="jud"
@@ -2624,8 +2674,8 @@ CompilerEndIf
 
 End
 ; IDE Options = PureBasic 5.30 (Windows - x86)
-; CursorPosition = 1585
-; FirstLine = 1553
+; CursorPosition = 466
+; FirstLine = 438
 ; Folding = ------
 ; EnableXP
 ; EnableCompileCount = 0
