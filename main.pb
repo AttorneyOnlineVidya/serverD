@@ -1587,7 +1587,7 @@ Procedure HandleAOCommand(ClientID)
                   SendTarget("Area"+Str(*usagePointer\area),"CT#$HOST#area is now casing with full roles#%",Server)
                   WriteLog(logstatus$,*usagePointer)
                 Default
-                  pr$="CT#$HOST#Couldn't recognize status. Try: idle, buildingopen, buildilngfull, casingopen, casingfull"
+                  pr$="CT#$HOST#Couldn't recognize status. Try: idle, buildingopen, buildingfull, casingopen, casingfull"
                   SendTarget(Str(ClientID),pr$+"#%",Server)
               EndSelect
               
